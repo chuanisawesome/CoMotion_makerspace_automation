@@ -1,0 +1,46 @@
+function sendEmails() {
+  
+  // TODO: check all the variables to ensure they're correct
+  
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var startRow = 2; // Start at second row because first row contains the data labels
+  var endRow = sheet.getLastRow(); // number of rows you want to process
+  
+  // TODO: these are the most likey ones that need to be changed
+  var startCol = 1;
+  var endCol = 3;
+
+  // Fetch the range of cells A2:B1000
+  // Column A = Email Address, Column B = First Name
+  var data = sheet.getRange(startRow, startCol, endRow, endCol).getValues()
+  
+  for (i in data) {
+   var row = data[i];
+   var emailAddress = row[0]; // First column of selected data
+   var name = row[1]; // Second column
+   var is_emailed =  row[2]; // Third 
+    if (!is_emailed) {
+      var is_passed = row[3]/30 >= 0.8 // 80 percent passing score
+      
+      var subject = "Your CoMotion MakerSpace quiz results!";
+      // we need to check if the email exists in the row and determine which message to send them
+      if (is_passed && emailAddress) {
+        var message = "Hey " + name + ",\n Congratulations! You successfully passed the MakerSpace quiz! Here's your next steps..."; // Assemble the body text
+      } else {
+
+        var message = "Hey " + name + ",\n Sorry! Sadly you didn't pass the quiz! please try again :)"; // Assemble the body text
+      }
+      MailApp.sendEmail(emailAddress, subject, message);
+    }
+     // TODO: put the logic in here  
+     // Check if they passed and make devision on fail or pass email
+     // set value to emailed
+    // put the date and time when they're emailed
+     
+  
+    // test with true/false working
+   // test if trigger works
+ 
+
+  }
+}
