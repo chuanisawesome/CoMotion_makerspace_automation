@@ -1,46 +1,53 @@
 function sendEmails() {
-  
+   Logger.clear();
   // TODO: check all the variables to ensure they're correct
-  
   var sheet = SpreadsheetApp.getActiveSheet();
   var startRow = 2; // Start at second row because first row contains the data labels
   var endRow = sheet.getLastRow(); // number of rows you want to process
   
   // TODO: these are the most likey ones that need to be changed
   var startCol = 1;
-  var endCol = 3;
+  var endCol = sheet.getLastColumn();
 
   // Fetch the range of cells A2:B1000
   // Column A = Email Address, Column B = First Name
   var data = sheet.getRange(startRow, startCol, endRow, endCol).getValues()
   
-  for (i in data) {
-   var row = data[i];
-   var emailAddress = row[0]; // First column of selected data
-   var name = row[1]; // Second column
-   var is_emailed =  row[2]; // Third 
-    if (!is_emailed) {
-      var is_passed = row[3]/30 >= 0.8 // 80 percent passing score
-      
-      var subject = "Your CoMotion MakerSpace quiz results!";
-      // we need to check if the email exists in the row and determine which message to send them
-      if (is_passed && emailAddress) {
-        var message = "Hey " + name + ",\n Congratulations! You successfully passed the MakerSpace quiz! Here's your next steps..."; // Assemble the body text
-      } else {
-
-        var message = "Hey " + name + ",\n Sorry! Sadly you didn't pass the quiz! please try again :)"; // Assemble the body text
-      }
-      MailApp.sendEmail(emailAddress, subject, message);
-    }
-     // TODO: put the logic in here  
-     // Check if they passed and make devision on fail or pass email
-     // set value to emailed
-    // put the date and time when they're emailed
-     
+  var EMAIL_ADDRESS_COL = 0;
+  var NAME_COL = 1; 
+  var IS_PASSED_COL = 2;
+  var IS_EMAILED_COL = 3; 
+  var SCORE_COL = 4;
   
-    // test with true/false working
-   // test if trigger works
- 
-
+  for (var current_row = 0; current_row < data.length - 1; current_row++) {
+   var row = data[current_row];
+   var emailAddress = row[EMAIL_ADDRESS_COL];
+   var name = row[NAME_COL];
+   var is_emailed =  row[IS_EMAILED_COL]; 
+   var is_passed = row[SCORE_COL]/30 >= 0.8 // 80 percent passing score
+   
+  // PART OF THESE Variables DEAL WITH COUNTING AT 0, AND PART OF THEM DEAL WITH COUNTING AT 1. SOLUTION?
+  // Set these variables to prevent psychosis.
+  
+  var current_range_row = current_row + 2;
+  var current_range_is_passed_col = IS_PASSED_COL + 1;
+  var current_range_is_emailed_col = IS_EMAILED_COL + 1;
+   
+  var is_passed_cell = sheet.getRange(current_range_row, current_range_is_passed_col);
+   
+   // if there's nothing in the is_passed cell, then store if they passed or not in the is_passed cell
+   if (is_passed_cell.getValue() == "") {
+     is_passed_cell.setValue(is_passed);
+   }
+  
+   
+   if (!is_emailed && is_passed) {
+   
+      var subject = "Welcome to CoMotion MakerSpace!"; 
+      var message = "Hey " + name + ",\n Congratulations! You successfully passed the MakerSpace quiz!\n Here are your next steps..."; // Assemble the body text
+      MailApp.sendEmail(emailAddress, subject, message)
+      sheet.getRange(current_range_row, current_range_is_emailed_col).setValue("true");
+    }
+   SpreadsheetApp.flush();
   }
 }
